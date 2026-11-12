@@ -1,0 +1,92 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: int-solutions-sys
+
+  # ==========================================
+  # CONEXIÓN A LA BASE DE DATOS
+  # ==========================================
+  datasource:
+    url: ${BD_URL}
+    username: ${BD_USER}
+    password: ${BD_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  # ==========================================
+  # CONFIGURACIÓN DE SPRING DATA JPA / HIBERNATE
+  # ==========================================
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  # ==========================================
+  # MIGRACIONES CON FLYWAY
+  # ==========================================
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  # ==========================================
+  # Configuracion de Corrreo
+  # ==========================================¡
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+# ==========================================
+# Configuracion JWT
+# ==========================================
+jwt:
+  secret: ${JWT:}
+  expiration:
+    administrador: ${TIME_ADMIN}
+    administrativo: ${TIME_ADMINISTRATIVO}
+    tecnico: ${TIME_TECNICO}
+    cliente: ${TIME_CLIENTE}
+
+# ==========================================
+#Configuración local
+# ==========================================
+app:
+  admin:
+    username: ${ADMIN_USERNAME}
+    password: ${ADMIN_PASSWORD}
+  frontend:
+    url: ${FRONTEND_URL}
+
+# ==========================================
+# CONFIGURACIÓN DE LOGS
+# ==========================================
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
