@@ -89,6 +89,10 @@ public class CustomerServiceImp implements CustomerService {
                 .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado con ID: " + id));
         User usuario = cliente.getUsuario();
 
+        if (Boolean.FALSE.equals(usuario.getEstadoCuenta())) {
+            throw new IllegalArgumentException("No se puede editar un cliente con cuenta inactiva");
+        }
+
         if (!cliente.getIdentificacion().equals(request.getIdentificacion()) &&
                 customerRepository.existsByIdentificacion(request.getIdentificacion())) {
             throw new IllegalArgumentException("La cédula ingresada ya pertenece a otro cliente");

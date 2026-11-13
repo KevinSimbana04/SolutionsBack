@@ -69,6 +69,12 @@ public class UserServiceImp implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("El rol no encontrado"));
 
         if (usuarioExistenteOpt.isPresent()) {
+            if (nombreRol == RoleE.ADMINISTRADOR) {
+                throw new IllegalArgumentException(
+                        "La identificación o el correo ya pertenece a una cuenta. Para crear un administrador nuevo, utiliza datos que no estén registrados."
+                );
+            }
+
             User usuario = usuarioExistenteOpt.get();
             boolean yaTieneRol = usuario.getRoles().stream()
                     .anyMatch(r -> r.getNombreRol().equals(nombreRol));

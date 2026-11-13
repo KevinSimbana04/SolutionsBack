@@ -4,6 +4,7 @@ import com.int_solutions.sys.dto.userDto.IdentityUserDto;
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeRequestDto;
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeResponseDto;
 import com.int_solutions.sys.entity.auth.Role;
+import com.int_solutions.sys.entity.auth.RoleE;
 import com.int_solutions.sys.entity.user.Employee;
 import com.int_solutions.sys.entity.user.User;
 import com.int_solutions.sys.mapper.EmployeeMapper;
@@ -49,13 +50,16 @@ public class EmployeeServiceImp implements EmployeeService {
 
         if (identidad.esNuevoUsuario()) {
             String nombreCompleto = empleadoGuardado.getNombres() + " " + empleadoGuardado.getApellidos();
+            String tipoUsuario = request.getRol() == RoleE.ADMINISTRADOR
+                    ? "administrador"
+                    : "empleado (" + request.getCargo() + ")";
             emailService.enviarActivacionBrevo(
                     identidad.usuario().getCorreo(),
                     nombreCompleto,
                     identidad.usuario().getNombreUsuario(),
                     identidad.claveTemporal(),
                     identidad.tokenActivacion(),
-                    "empleado (" + request.getCargo() + ")"
+                    tipoUsuario
             );
             return employeeMapper.toResponseDto(empleadoGuardado, "Usuario registrado exitosamente. Correo enviado.");
         }
