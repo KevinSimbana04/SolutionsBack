@@ -62,11 +62,15 @@ spring:
             enable: true
             required: true
 
+  brevo:
+    api-key: ${BREVO_API_KEY}
+    sender-email: ${MAIL_USERNAME}
+    sender-name: INT-SOLUTIONS
 # ==========================================
 # Configuracion JWT
 # ==========================================
 jwt:
-  secret: ${JWT:}
+  secret: ${JWT}
   expiration:
     administrador: ${TIME_ADMIN}
     administrativo: ${TIME_ADMINISTRATIVO}

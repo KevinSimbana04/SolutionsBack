@@ -51,7 +51,7 @@ public class CustomerServiceImp implements CustomerService {
 
         if (identidad.esNuevoUsuario()) {
             String nombreCompleto = saveCustomer.getNombres() + " " + saveCustomer.getApellidos();
-            emailService.enviarActivacion(
+            emailService.enviarActivacionBrevo(
                     identidad.usuario().getCorreo(),
                     nombreCompleto,
                     identidad.usuario().getNombreUsuario(),
