@@ -17,6 +17,7 @@ public record CustomerResponseDto(
         String nombreUsuario,
         String rol,
         Boolean estadoCuenta,
+        String motivo,
         Boolean bloqueado,
         LocalDate fechaCreacion,
         String mensaje

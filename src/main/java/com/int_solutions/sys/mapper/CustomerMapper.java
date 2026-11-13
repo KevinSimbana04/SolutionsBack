@@ -22,6 +22,7 @@ public interface CustomerMapper {
     @Mapping(source = "customer.usuario.nombreUsuario", target = "nombreUsuario")
     @Mapping(target = "rol", constant = "CLIENTE")
     @Mapping(source = "customer.usuario.estadoCuenta", target = "estadoCuenta")
+    @Mapping(source = "customer.usuario.motivo", target = "motivo")
     @Mapping(source = "customer.usuario.bloqueado", target = "bloqueado")
     @Mapping(source = "customer.usuario.fechaCreacion", target = "fechaCreacion")
     @Mapping(source = "mensajeInyectado", target = "mensaje")
