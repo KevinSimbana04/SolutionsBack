@@ -49,7 +49,7 @@ public class EmployeeServiceImp implements EmployeeService {
 
         if (identidad.esNuevoUsuario()) {
             String nombreCompleto = empleadoGuardado.getNombres() + " " + empleadoGuardado.getApellidos();
-            emailService.enviarActivacion(
+            emailService.enviarActivacionBrevo(
                     identidad.usuario().getCorreo(),
                     nombreCompleto,
                     identidad.usuario().getNombreUsuario(),
