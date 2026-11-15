@@ -50,18 +50,10 @@ public class EmployeeServiceImp implements EmployeeService {
 
         if (identidad.esNuevoUsuario()) {
             String nombreCompleto = empleadoGuardado.getNombres() + " " + empleadoGuardado.getApellidos();
-<<<<<<< HEAD
-<<<<<<< HEAD
-            emailService.enviarActivacion(
-=======
             String tipoUsuario = request.getRol() == RoleE.ADMINISTRADOR
                     ? "administrador"
                     : "empleado (" + request.getCargo() + ")";
             emailService.enviarActivacionBrevo(
->>>>>>> 1abb703 (Actulización para registro de administrador y usuarios con cuentas desactivadas)
-=======
-            emailService.enviarActivacionBrevo(
->>>>>>> 95c66d4 (Integración de envio de correoelectronico por medio de una API)
                     identidad.usuario().getCorreo(),
                     nombreCompleto,
                     identidad.usuario().getNombreUsuario(),
