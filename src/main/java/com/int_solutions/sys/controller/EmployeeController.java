@@ -58,7 +58,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/tecnicos")
-    @PreAuthorize("hasAnyRole('ADMINISTRATIVO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRATIVO', 'ADMINISTRADOR')")
     public ResponseEntity<List<TechnicalResponseDto>> listarTecnicosDisponibles() {
         return ResponseEntity.ok(employeeService.listarTecnicosDisponibles());
     }
