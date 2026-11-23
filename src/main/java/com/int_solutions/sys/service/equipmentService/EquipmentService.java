@@ -10,4 +10,6 @@ public interface EquipmentService {
     List<EquipmentResponseDto> listarEquipos(Long clienteId);
     EquipmentResponseDto obtenerPorId(Long id);
     EquipmentResponseDto actualizarEquipo(Long id, EquipmentRequestDto request);
+
+    List<EquipmentResponseDto>listarMisEquiposCliente();
 }

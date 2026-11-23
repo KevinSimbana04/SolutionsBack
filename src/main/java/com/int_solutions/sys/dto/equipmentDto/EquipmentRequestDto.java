@@ -36,11 +36,11 @@ public class EquipmentRequestDto {
     @NotBlank(message = "El campo accesorios es obligatorio")
     private String accesorios;
 
-    @NotBlank(message = "El estado físico inicial es obligatorio")
-    @Size(min = 10, message = "El estado físico inicial debe tener al menos 10 caracteres")
+    @NotBlank(message = "El estadoOrden físico inicial es obligatorio")
+    @Size(min = 10, message = "El estadoOrden físico inicial debe tener al menos 10 caracteres")
     private String estadoFisicoInicial;
 
-    @NotBlank(message = "Es obligatorio adjuntar al menos una fotografía del estado físico inicial del equipo antes de continuar")
+    @NotBlank(message = "Es obligatorio adjuntar al menos una fotografía del estadoOrden físico inicial del equipo antes de continuar")
     @Pattern(regexp = ".*\\.(jpg|jpeg|png|JPG|JPEG|PNG)$|^data:image/(jpeg|png);base64,.*",
             message = "La fotografía debe estar en formato JPG o PNG")
     private String fotografiaInicial;

@@ -5,25 +5,31 @@ import com.int_solutions.sys.dto.equipmentDto.EquipmentResponseDto;
 import com.int_solutions.sys.entity.equipment.Equipment;
 import com.int_solutions.sys.entity.equipment.EquipmentType;
 import com.int_solutions.sys.entity.user.Customer;
+import com.int_solutions.sys.entity.user.User;
 import com.int_solutions.sys.mapper.EquipmentMapper;
 import com.int_solutions.sys.repository.CustomerRepository;
 import com.int_solutions.sys.repository.EquipmentRepository;
 import com.int_solutions.sys.repository.EquipmentTypeRepository;
+import com.int_solutions.sys.util.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EquipmentServiceImp implements EquipmentService {
+public class  EquipmentServiceImp implements EquipmentService {
     private final CustomerRepository customerRepository;
     private final EquipmentTypeRepository equipmentTypeRepository;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentMapper equipmentMapper;
+    private final SecurityContextHelper securityContextHelper;
 
     @Override
     @Transactional
@@ -102,4 +108,17 @@ public class EquipmentServiceImp implements EquipmentService {
         log.info("Auditoría: Equipo ID {} actualizado correctamente", id);
         return equipmentMapper.toResponseDto(actualizado, "Datos del equipo actualizados correctamente");
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EquipmentResponseDto> listarMisEquiposCliente() {
+        User usuarioSesion = securityContextHelper.obtenerUsuarioEnSesion();
+        Customer cliente = customerRepository.findByUsuario_UsuarioId(usuarioSesion.getUsuarioId())
+                .orElseThrow(() -> new IllegalStateException("El usuario en sesión no tiene perfil de cliente."));
+
+        return equipmentMapper.toResponseDtoList(
+                equipmentRepository.findByCliente_ClienteId(cliente.getClienteId())
+        );
+    }
+
 }

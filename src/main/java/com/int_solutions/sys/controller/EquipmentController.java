@@ -44,4 +44,11 @@ public class EquipmentController {
             @Valid @RequestBody EquipmentRequestDto request) {
         return ResponseEntity.ok(equipmentService.actualizarEquipo(id, request));
     }
+
+
+    @GetMapping("/mis-equipos")
+    @PreAuthorize("hasAuthority('EQUIPO_LEER_PROPIOS') or hasRole('CLIENTE')")
+    public ResponseEntity<List<EquipmentResponseDto>> listarMisEquipos() {
+        return ResponseEntity.ok(equipmentService.listarMisEquiposCliente());
+    }
 }

@@ -2,6 +2,7 @@ package com.int_solutions.sys.service.employeeService;
 
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeRequestDto;
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeResponseDto;
+import com.int_solutions.sys.dto.userDto.employeeDto.TechnicalResponseDto;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface EmployeeService {
     EmployeeResponseDto obtenerPorId(Long id);
     EmployeeResponseDto actualizarEmpleado(Long id, EmployeeRequestDto request);
     void desactivarEmpleado(Long id, String motivo);
+    List<TechnicalResponseDto> listarTecnicosDisponibles();
 }

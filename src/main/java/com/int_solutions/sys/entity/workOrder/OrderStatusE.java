@@ -1,0 +1,23 @@
+package com.int_solutions.sys.entity.workOrder;
+
+public enum OrderStatusE {
+        SOLICITUD_RECIBIDA,
+        EQUIPO_INGRESADO,
+        PENDIENTE_ASIGNACION,
+        ASIGNADO_A_TECNICO,
+        RECIBIDO_POR_TECNICO,
+        EN_DIAGNOSTICO,
+        PENDIENTE_PRESUPUESTO,
+        SIN_REPARACION,
+        PRESUPUESTO_ENVIADO,
+        PRESUPUESTO_APROBADO,
+        PRESUPUESTO_RECHAZADO,
+        PRESUPUESTO_VENCIDO,
+        EN_REPARACION,
+        EN_ESPERA_REPUESTOS,
+        EN_PRUEBAS,
+        REQUIERE_NUEVA_INTERVENCION,
+        LISTO_PARA_ENTREGA,
+        ENTREGADO,
+        CANCELADO
+}
