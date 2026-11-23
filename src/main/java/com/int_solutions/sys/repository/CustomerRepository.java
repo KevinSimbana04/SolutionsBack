@@ -16,5 +16,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT c FROM Customer c WHERE c.identificacion LIKE %:filtro% " +
             "OR LOWER(c.nombres) LIKE LOWER(CONCAT('%', :filtro, '%')) " +
             "OR LOWER(c.apellidos) LIKE LOWER(CONCAT('%', :filtro, '%'))")
+
     List<Customer> buscarPorCedulaONombre(@Param("filtro") String filtro);
+    Optional<Customer> findByUsuario_UsuarioId(Long usuarioId);
 }

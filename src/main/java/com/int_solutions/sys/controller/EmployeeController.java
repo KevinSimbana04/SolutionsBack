@@ -2,6 +2,7 @@ package com.int_solutions.sys.controller;
 
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeRequestDto;
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeResponseDto;
+import com.int_solutions.sys.dto.userDto.employeeDto.TechnicalResponseDto;
 import com.int_solutions.sys.service.employeeService.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,5 +55,11 @@ public class EmployeeController {
         String motivo = body.get("motivo");
         employeeService.desactivarEmpleado(id, motivo);
         return ResponseEntity.ok(Map.of("mensaje", "Cuenta de usuario desactivada exitosamente"));
+    }
+
+    @GetMapping("/tecnicos")
+    @PreAuthorize("hasAnyRole('ADMINISTRATIVO')")
+    public ResponseEntity<List<TechnicalResponseDto>> listarTecnicosDisponibles() {
+        return ResponseEntity.ok(employeeService.listarTecnicosDisponibles());
     }
 }

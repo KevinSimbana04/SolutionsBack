@@ -3,6 +3,7 @@ package com.int_solutions.sys.service.employeeService;
 import com.int_solutions.sys.dto.userDto.IdentityUserDto;
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeRequestDto;
 import com.int_solutions.sys.dto.userDto.employeeDto.EmployeeResponseDto;
+import com.int_solutions.sys.dto.userDto.employeeDto.TechnicalResponseDto;
 import com.int_solutions.sys.entity.auth.Role;
 import com.int_solutions.sys.entity.auth.RoleE;
 import com.int_solutions.sys.entity.user.Employee;
@@ -137,5 +138,11 @@ public class EmployeeServiceImp implements EmployeeService {
         userRepository.save(usuario);
 
         log.info("Auditoría: Cuenta de empleado ID {} desactivada lógicamente. Motivo: {}", id, motivo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TechnicalResponseDto> listarTecnicosDisponibles() {
+        return employeeRepository.findTecnicosActivos(RoleE.TECNICO);
     }
 }
