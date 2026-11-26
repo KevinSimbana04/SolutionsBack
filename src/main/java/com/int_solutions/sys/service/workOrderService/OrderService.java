@@ -3,11 +3,9 @@ package com.int_solutions.sys.service.workOrderService;
 import com.int_solutions.sys.dto.filterDto.OrderFilterDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderCancelRequestDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderCreateRequestDto;
+import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderDeliveryRequestDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderUpdateReceptionRequestDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderClientDetailResponseDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderClientSummaryDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderDetailResponseDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderResponseDto;
+import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,5 +28,8 @@ public interface OrderService {
 
     //Ordenes para Admin
     Page<OrderResponseDto> consultarGlobalAdmin(OrderFilterDto filtro, Pageable pageable);
+
+    OrderResponseDto entregarEquipo(Long ordenId, OrderDeliveryRequestDto request);
+    EquipmentHistoryResponseDto consultarHistorialEquipoCliente(Long equipoId);
 
 }

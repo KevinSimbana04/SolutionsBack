@@ -3,15 +3,17 @@ package com.int_solutions.sys.service.workOrderService;
 import com.int_solutions.sys.dto.filterDto.OrderFilterDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderCancelRequestDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderCreateRequestDto;
+import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderDeliveryRequestDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderUpdateReceptionRequestDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderClientDetailResponseDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderClientSummaryDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderDetailResponseDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderResponseDto;
+import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.*;
 import com.int_solutions.sys.entity.auth.RoleE;
+import com.int_solutions.sys.entity.budget.Budget;
+import com.int_solutions.sys.entity.budget.DetailSparePart;
+import com.int_solutions.sys.entity.diagnosis.Diagnosis;
 import com.int_solutions.sys.entity.equipment.Equipment;
 import com.int_solutions.sys.entity.user.Customer;
 import com.int_solutions.sys.entity.user.Employee;
+import com.int_solutions.sys.entity.user.User;
 import com.int_solutions.sys.entity.workOrder.Order;
 import com.int_solutions.sys.entity.workOrder.OrderStatus;
 import com.int_solutions.sys.entity.workOrder.OrderStatusE;
@@ -28,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +44,10 @@ public class OrderServiceImp  implements  OrderService{
     private final EquipmentRepository equipmentRepository;
     private final EmployeeRepository employeeRepository;
     private final OrderHistoryRepository orderHistoryRepository;
+    private final BudgetRepository budgetRepository;
+    private final PaymentRepository paymentRepository;
+    private final ParameterRepository parameterRepository;
+    private final DiagnosisRepository diagnosisRepository;
 
     private final OrderAuditHelper settingOrder;
     private final SecurityContextHelper securityContextHelper;
@@ -58,6 +66,11 @@ public class OrderServiceImp  implements  OrderService{
             OrderStatusE.SIN_REPARACION
     );
 
+    private static final Set<OrderStatusE> ESTADOS_ENTREGABLES = Set.of(
+            OrderStatusE.LISTO_PARA_ENTREGA,
+            OrderStatusE.SIN_REPARACION,
+            OrderStatusE.PRESUPUESTO_RECHAZADO
+    );
 
     @Override
     @Transactional
@@ -237,6 +250,61 @@ public class OrderServiceImp  implements  OrderService{
                 .map(orderMapper::toResponseDto);
     }
 
+    @Override
+    @Transactional
+    public OrderResponseDto entregarEquipo(Long ordenId, OrderDeliveryRequestDto request) {
+        User usuario = securityContextHelper.obtenerUsuarioEnSesion();
+        Order orden = settingOrder.buscarOrden(ordenId);
+        OrderStatusE estadoActual = orden.getEstadoOrden().getTipoEstado();
+
+        if (!ESTADOS_ENTREGABLES.contains(estadoActual)) {
+            throw new IllegalStateException("La orden debe estar lista para entrega o cerrada para retiro antes de entregar el equipo.");
+        }
+        if (estadoActual == OrderStatusE.LISTO_PARA_ENTREGA) {
+            validarSaldoCeroParaEntrega(ordenId);
+        }
+
+        OrderStatus estadoAnterior = orden.getEstadoOrden();
+        OrderStatus estadoEntregado = settingOrder.obtenerEstado(OrderStatusE.ENTREGADO);
+
+        orden.setEstadoOrden(estadoEntregado);
+        orden.setFechaEntrega(LocalDate.now());
+        orden.setPersonaRecibe(request.getPersonaRecibe().trim());
+        orden.setIdentificacionRecibe(request.getIdentificacionRecibe().trim());
+        orden.setObservacionesEntrega(request.getObservacionesEntrega());
+
+        Order guardada = orderRepository.save(orden);
+        settingOrder.registrarHistorial(
+                guardada, estadoAnterior, estadoEntregado, usuario,
+                "Equipo entregado a " + orden.getPersonaRecibe() + " (CI: " + orden.getIdentificacionRecibe() + ")"
+        );
+        return orderMapper.toResponseDto(guardada);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EquipmentHistoryResponseDto consultarHistorialEquipoCliente(Long equipoId) {
+        Customer cliente = securityContextHelper.obtenerClienteEnSesion();
+        Equipment equipo = equipmentRepository.findById(equipoId)
+                .orElseThrow(() -> new IllegalArgumentException("Equipo no encontrado."));
+
+        if (!equipo.getCliente().getClienteId().equals(cliente.getClienteId())) {
+            throw new AccessDeniedException("No tiene autorización para consultar el historial de este equipo.");
+        }
+
+        int diasGarantia = parameterRepository.findByClave("TIEMPO_GARANTIA")
+                .map(p -> Integer.parseInt(p.getValor()))
+                .orElse(2);
+
+        List<EquipmentHistoryItemDto> items = orderRepository
+                .findByEquipo_EquipoIdAndEstadoOrden_TipoEstadoInOrderByFechaEntregaDescFechaCreacionDesc(
+                        equipoId, List.of(OrderStatusE.ENTREGADO, OrderStatusE.SIN_REPARACION))
+                .stream()
+                .map(orden -> mapearItemHistorial(orden, diasGarantia))
+                .toList();
+
+        return orderMapper.toEquipmentHistoryResponseDto(equipo, items);
+    }
 
     private OrderResponseDto cambiarEstadoTecnico(
             Long ordenId, OrderStatusE estadoEsperado, OrderStatusE nuevoEstadoEnum, String observacion) {
@@ -281,5 +349,49 @@ public class OrderServiceImp  implements  OrderService{
         }
 
         return tecnico;
+    }
+
+    private LocalDate sumarDiasHabiles(LocalDate inicio, int diasHabiles) {
+        LocalDate fecha = inicio;
+        int sumados = 0;
+        while (sumados < diasHabiles) {
+            fecha = fecha.plusDays(1);
+            var dia = fecha.getDayOfWeek();
+            if (dia != java.time.DayOfWeek.SATURDAY && dia != java.time.DayOfWeek.SUNDAY) {
+                sumados++;
+            }
+        }
+        return fecha;
+    }
+
+    private void validarSaldoCeroParaEntrega(Long ordenId) {
+        Budget presupuesto = budgetRepository.findByOrdenTrabajo_OrdenId(ordenId)
+                .orElseThrow(() -> new IllegalStateException("No existe presupuesto asociado a esta orden."));
+        BigDecimal abonado = paymentRepository.sumarTotalAbonadoActivo(ordenId);
+        if (presupuesto.getTotalPagar().subtract(abonado).compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalStateException(
+                    "El equipo registra un saldo pendiente. El sistema no podrá registrar la entrega y denegará la autorización de salida del equipo."
+            );
+        }
+    }
+
+    private EquipmentHistoryItemDto mapearItemHistorial(Order orden, int diasGarantia) {
+        String diagResumen = diagnosisRepository.findByOrdenTrabajo_OrdenId(orden.getOrdenId())
+                .map(Diagnosis::getCausaProbableTecnico)
+                .orElse("Sin diagnóstico registrado");
+
+        List<String> repuestos = budgetRepository.findByOrdenTrabajo_OrdenId(orden.getOrdenId())
+                .map(b -> b.getDetallesRepuesto().stream()
+                        .filter(d -> Boolean.TRUE.equals(d.getUtilizadoReparacion()))
+                        .map(DetailSparePart::getNombreRepuesto)
+                        .toList())
+                .orElse(List.of());
+
+        LocalDate fechaFinGarantia = (orden.getFechaEntrega() != null
+                && orden.getEstadoOrden().getTipoEstado() == OrderStatusE.ENTREGADO)
+                ? sumarDiasHabiles(orden.getFechaEntrega(), diasGarantia)
+                : null;
+
+        return orderMapper.toEquipmentHistoryItemDto(orden, diagResumen, repuestos, diasGarantia, fechaFinGarantia);
     }
 }

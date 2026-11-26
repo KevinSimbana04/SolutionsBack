@@ -3,11 +3,9 @@ package com.int_solutions.sys.controller;
 import com.int_solutions.sys.dto.filterDto.OrderFilterDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderCancelRequestDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderCreateRequestDto;
+import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderDeliveryRequestDto;
 import com.int_solutions.sys.dto.workOrderDto.orderRequestDto.OrderUpdateReceptionRequestDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderClientDetailResponseDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderClientSummaryDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderDetailResponseDto;
-import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.OrderResponseDto;
+import com.int_solutions.sys.dto.workOrderDto.orderResponseDto.*;
 import com.int_solutions.sys.entity.workOrder.OrderStatusE;
 import com.int_solutions.sys.service.workOrderService.OrderService;
 import jakarta.validation.Valid;
@@ -105,6 +103,21 @@ public class OrderController {
 
         OrderFilterDto filtro = new OrderFilterDto(tecnicoId, null, estado, busqueda);
         return ResponseEntity.ok(orderService.consultarGlobalAdmin(filtro, pageable));
+    }
+
+    @PatchMapping("/{id}/entregar")
+    @PreAuthorize("hasAuthority('ORDEN_ENTREGAR') or hasAnyRole('ADMINISTRATIVO', 'ADMINISTRADOR')")
+    public ResponseEntity<OrderResponseDto> entregarEquipo(
+            @PathVariable Long id,
+            @Valid @RequestBody OrderDeliveryRequestDto request) {
+        return ResponseEntity.ok(orderService.entregarEquipo(id, request));
+    }
+
+    @GetMapping("/cliente/equipos/{equipoId}/historial")
+    @PreAuthorize("hasAuthority('EQUIPO_HISTORIAL_PROPIOS') or hasRole('CLIENTE')")
+    public ResponseEntity<EquipmentHistoryResponseDto> consultarHistorialEquipoCliente(
+            @PathVariable Long equipoId) {
+        return ResponseEntity.ok(orderService.consultarHistorialEquipoCliente(equipoId));
     }
 
 }

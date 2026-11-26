@@ -29,4 +29,10 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
             Long equipoId,
             Collection<OrderStatusE> estadosFinalizados
     );
+
+    @EntityGraph(attributePaths = {"estadoOrden", "equipo", "tecnico"})
+    List<Order> findByEquipo_EquipoIdAndEstadoOrden_TipoEstadoInOrderByFechaEntregaDescFechaCreacionDesc(
+            Long equipoId,
+            Collection<OrderStatusE> estadosFinalizados
+    );
 }

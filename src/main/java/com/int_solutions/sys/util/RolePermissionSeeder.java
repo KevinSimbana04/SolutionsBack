@@ -63,6 +63,12 @@ public class RolePermissionSeeder implements CommandLineRunner {
                 enums.add(PermissionE.ROL_ASIGNAR);
                 enums.add(PermissionE.PARAMETRO_LEER);
                 enums.add(PermissionE.PARAMERTRO_EDITAR);
+                enums.add(PermissionE.PAGO_CONSULTAR_TODOS);
+                enums.add(PermissionE.PAGO_REGISTRAR);
+                enums.add(PermissionE.PAGO_ANULAR);
+                enums.add(PermissionE.PAGO_DESCARGAR_COMPROBANTE);
+                enums.add(PermissionE.ORDEN_ENTREGAR);
+                enums.add(PermissionE.RESENA_LEER);
                 break;
             case ADMINISTRATIVO:
                 enums.add(PermissionE.CLIENTE_CREAR);
@@ -77,6 +83,10 @@ public class RolePermissionSeeder implements CommandLineRunner {
                 enums.add(PermissionE.ORDEN_EDITAR_RECEPCION);
                 enums.add(PermissionE.ORDEN_ASIGNAR_TECNICO);
                 enums.add(PermissionE.ORDEN_CANCELAR);
+                enums.add(PermissionE.PAGO_REGISTRAR);
+                enums.add(PermissionE.PAGO_DESCARGAR_COMPROBANTE);
+                enums.add(PermissionE.ORDEN_ENTREGAR);
+                enums.add(PermissionE.RESENA_LEER);
 
                 break;
             case TECNICO:
@@ -87,6 +97,12 @@ public class RolePermissionSeeder implements CommandLineRunner {
             case CLIENTE:
                 enums.add(PermissionE.ORDEN_LEER_PROPIAS);
                 enums.add(PermissionE.EQUIPO_LEER_PROPIOS);
+                enums.add(PermissionE.PAGO_CONSULTAR_PROPIOS);
+                enums.add(PermissionE.PAGO_DESCARGAR_COMPROBANTE);
+                enums.add(PermissionE.EQUIPO_HISTORIAL_PROPIOS);
+                enums.add(PermissionE.RESENA_CREAR);
+                enums.add(PermissionE.RESENA_LEER);
+
                 break;
         }
 

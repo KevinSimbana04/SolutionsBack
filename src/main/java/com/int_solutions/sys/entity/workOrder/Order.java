@@ -42,6 +42,12 @@ public class Order {
     @Column(name = "motivo", columnDefinition ="TEXT")
     private String motivo;
 
+    @Column(name = "identificacion_recibe", length = 20)
+    private String identificacionRecibe;
+
+    @Column(name = "observaciones_entrega", columnDefinition = "TEXT")
+    private String observacionesEntrega;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "estado_orden_id", nullable = false)
     private OrderStatus estadoOrden;

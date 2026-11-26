@@ -31,6 +31,8 @@ public interface OrderMapper {
     @Mapping(source = "tecnico", target = "tecnico")
     @Mapping(source = "cliente", target = "cliente")
     @Mapping(source = "equipo", target = "equipo")
+    @Mapping(target = "identificacionRecibe", ignore = true)
+    @Mapping(target = "observacionesEntrega", ignore = true)
     Order toEntity(
             OrderCreateRequestDto request,
             String codigo,
@@ -59,7 +61,6 @@ public interface OrderMapper {
             expression = "java(orden.getTecnico() != null ? orden.getTecnico().getNombres() + \" \" + orden.getTecnico().getApellidos() : null)")
     OrderResponseDto toResponseDto(Order orden);
     List<OrderResponseDto> toResponseDtoList(List<Order> ordenes);
-
 
 
     @Mapping(target = "usuarioResponsable",
@@ -96,7 +97,6 @@ public interface OrderMapper {
         );
     }
 
-
     @Mapping(source = "ordenId", target = "ordenId")
     @Mapping(source = "estadoOrden.tipoEstado", target = "estadoOrden")
     @Mapping(source = "fechaEntrega", target = "fechaDeEntrega")
@@ -132,10 +132,38 @@ public interface OrderMapper {
         );
     }
 
-        default String obtenerRolPrincipal(User usuario) {
-            if (usuario != null && usuario.getRoles() != null && !usuario.getRoles().isEmpty()) {
-                return usuario.getRoles().iterator().next().getNombreRol().name();
-            }
-            return "SIN_ROL";
+    default String obtenerRolPrincipal(User usuario) {
+        if (usuario != null && usuario.getRoles() != null && !usuario.getRoles().isEmpty()) {
+            return usuario.getRoles().iterator().next().getNombreRol().name();
         }
+        return "SIN_ROL";
+    }
+
+    @Mapping(source = "orden.ordenId", target = "ordenId")
+    @Mapping(source = "orden.codigo", target = "codigoOrden")
+    @Mapping(source = "orden.estadoOrden.tipoEstado", target = "estadoOrden")
+    @Mapping(source = "orden.fechaCreacion", target = "fechaRecepcion")
+    @Mapping(source = "orden.fechaEntrega", target = "fechaEntrega")
+    @Mapping(source = "orden.equipo.fallaReportada", target = "fallaReportada")
+    @Mapping(source = "diagnosticoAplicado", target = "diagnosticoAplicado")
+    @Mapping(source = "repuestosSustituidos", target = "repuestosSustituidos")
+    @Mapping(source = "diasGarantia", target = "diasGarantia")
+    @Mapping(source = "fechaFinGarantia", target = "fechaFinGarantia")
+    @Mapping(target = "garantiaActiva",
+            expression = "java(fechaFinGarantia != null && !java.time.LocalDate.now().isAfter(fechaFinGarantia))")
+    EquipmentHistoryItemDto toEquipmentHistoryItemDto(
+            Order orden,
+            String diagnosticoAplicado,
+            List<String> repuestosSustituidos,
+            Integer diasGarantia,
+            java.time.LocalDate fechaFinGarantia
+    );
+
+    @Mapping(source = "equipo.equipoId", target = "equipoId")
+    @Mapping(source = "equipo.marca", target = "marca")
+    @Mapping(source = "equipo.modelo", target = "modelo")
+    @Mapping(source = "equipo.numeroSerie", target = "numeroSerie")
+    @Mapping(source = "equipo.tipoEquipo.nombreEquipo", target = "tipoEquipo")
+    @Mapping(source = "items", target = "reparacionesFinalizadas")
+    EquipmentHistoryResponseDto toEquipmentHistoryResponseDto(Equipment equipo, List<EquipmentHistoryItemDto> items);
 }
